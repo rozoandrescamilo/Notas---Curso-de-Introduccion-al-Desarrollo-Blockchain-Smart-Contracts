@@ -13,7 +13,12 @@ Profesor Felipe Pardo
 - [Solidity](#solidity)
   - [¿Qué es Solidity](#qué-es-solidity)
   - [Estructura de un contrato en Solidity](#estructura-de-un-contrato-en-solidity) 
-  - [Variables de estado y variables globales](#variables-de-estado-y-globales)
+  - [Variables de estado y variables globales](#variables-de-estado-y-globales) 
+  - [Funciones](#funciones)
+  - [Memory, storage y call data](#memory-storage-y-call-data)
+  - [Funciones](#funciones)
+  - [Funciones](#funciones)
+  - [Funciones](#funciones)
 
 # ¿Qué son los Smart Contracts?
 
@@ -303,7 +308,7 @@ contract Number {
 
 pragma solidity >=0.8.7 <0.9.0;
 
-contract payable {
+contract Fund {
 	//Payable function
     function sendEther(address payable receiver) public payable{
       receiver.transfer(msg.value);
@@ -347,6 +352,116 @@ contract Sum {
 ```
 
 [![14](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/14.png?raw=true "14")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/14.png?raw=true "14")
+
+## Memory, storage y call data
+
+[![15](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/15.png?raw=true "15")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/15.png?raw=true "15")
+
+- **Storage:** Queda guardada dentro de la blockchain, siempre vamos a poder obtener el valor almacenado, pues este nunca se va borrar. Memoria Persistente.
+
+- **Memory (Modificable):** Solo existe mientras se llama una función y no podemos acceder de nuevo a el dato. Memoria No Persistente.
+
+- **Call data (inmodificable):** Solo existe mientras se llama la función.
+
+- Por defecto las variables de estado se almacenan en el storage y los parámetros en memory.
+
+#### Reto #1
+
+- Crea un contrato y agrega variables de estado. 
+- Crea una función **fundProject** que permita enviar ether a un proyecto. 
+- Crea una función **changeProjectState** que permita cambiar el estado de un proyecto.
+
+```
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.7.0 <0.9.0;
+
+//Se crea contrato y se asignan variables de estado
+contract CrowdFunding {
+    string public id; //Referencia del proyecto
+    string public name; //Nombre actual del proyecto
+    string public description; 
+    address payable public author; //Autor o representante del proyecto
+    string public state = "Opened"; //Estado abierto para recibir fondos
+    uint256 public funds; //Para almacenar fondos
+    uint256 public fundraisingGoal; //Define cuanto se espera ganar con la ronda de fundraising
+    
+    //Para quien desplegue el contrato pueda asignar valor inicial a las variables
+    constructor(string memory _id, string memory _name, string memory _description, uint256 _fundraisingGoal) {
+        id = _id;
+        name = _name;
+        description = _description;
+        fundraisingGoal = _fundraisingGoal;
+        author = payable(msg.sender); //Para que pueda enviar ether a esta dirección 
+    }
+
+    //Para que cualquiera la pueda ver y enviar Ether sin problema
+    function fundProject() public payable {
+        author.transfer(msg.value); //Para transferir el valor de ether dado por el usuario al autor (wei)
+        funds += msg.value; //Se agrega a los fondos el valor recibido
+    }
+
+    //Recibe un nuevo estado, se guarda variable newState para optimizar gas usado en la llamada
+    function changeProjectState(string calldata newState) public {
+        state = newState;
+    }
+}
+```
+Se crea archivo en Remix IDE con el código y procede a Compilar: 
+
+[![16](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/16.png?raw=true "16")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/16.png?raw=true "16")
+
+Después se procede a hacer deploy del contrato teniendo en cuenta la información de ID, Name, Description y FunraisingGoal:
+
+[![17](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/17.png?raw=true "17")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/17.png?raw=true "17")
+
+Para probar el envío de fondos se enviará desde otra de las wallets de prueba la cantidad de 1 wei y lo verificamos en **funds:**
+
+> $1 ether == $1.000.000.000.000.000.000 wei
+
+[![18](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/18.png?raw=true "18")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/18.png?raw=true "18") [![19](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/19.png?raw=true "19")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/19.png?raw=true "19")
+
+Ahora con la cuenta principal se cambia el estado del proyecto de Opened a Closed:
+
+[![20](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/20.png?raw=true "20")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/20.png?raw=true "20")
+
+## Modificadores de funciones
+
+Nos permiten hacer validaciones antes de ejecutar nuestra función, de esta forma podemos evitar comportamientos inesperados o que la función sea ejecutada por alguien que no tiene permisos de hacerlo.
+
+Ejemplo:
+
+```
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.7.0 <0.9.0;
+
+contract Permission {
+    address private owner;
+    string public projectName = "Platzi";
+
+    //Guarda la dirección de quien despliega el contrato como owner
+    constructor() {
+        owner = msg.sender;
+    }
+
+    //Valida que el que puede cambiar el nombre del proyecto es el owner
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can change the project name"); // require tiene un parametro y un mensaje al usuario
+        //la función es insertada en donde aparece este símbolo
+        _;
+    }
+
+    //Solo el owner puede cambiar el nombre del proyecto onlyOwner
+    function changeProjectName(string memory _projectName) public onlyOwner {
+        projectName = _projectName;
+    }
+}
+```
+[![21](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/21.png?raw=true "21")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/21.png?raw=true "21")
+
+[![22](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/22.png?raw=true "22")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/22.png?raw=true "22")
+
 
 # Desplegando nuestro smart contract
 
