@@ -89,6 +89,8 @@ Solidity es un lenguaje de programación de alto nivel orientado a objetos, es u
 
 Documentación oficial de Solidity en la página oficial de Ethereum: https://ethereum.org/en/developers/docs/smart-contracts/languages/#solidity
 
+Documentación de Solidity en español: https://solidity-es.readthedocs.io/es/latest/
+
 Página oficial y documentación de Solidity: https://soliditylang.org/ https://solidity-es.readthedocs.io/es/latest/
 
 Ejemplos del lenguaje desde lo simple hasta díficil: https://solidity-by-example.org/
@@ -120,7 +122,7 @@ Recurso de la comunidad para aprender con CriptoZombies: https://cryptozombies.i
 
 **Tipos de variables:**
 
-- **bool - Booleanos**
+**bool - Booleanos**
 
   - true - false
   - ! (negación)
@@ -129,26 +131,31 @@ Recurso de la comunidad para aprender con CriptoZombies: https://cryptozombies.i
   - == (igualdad)
   - != (Desigualdad)
 
-- **uint/int - Enteros**
+
+**uint/int - Enteros**
 
 Hay dos tipos:
 
   - uint (Todos los enteros positivos)
   - int (Todos los enteros positivos y negativos)
 
-- **Address**
+
+**Address**
 
 address payable - Dirección de referencia que identifica smart wallet en la red de Ethereum.
 
-- **String**
+
+**String**
 
 Cadena de texto
 
-- **Visibilidad**
+
+**Visibilidad**
 
 Las variables con el identificador **private** podrán ser usadas dentro del contrato, las variables con el identificador **public** podrán ser usadas dentro y fuera del contrato, por defecto son private.
 
-- **Variables Globales**
+
+**Variables Globales**
 
   - block - Información del bloque
   - msg - Información de la llamada
@@ -217,6 +224,129 @@ En la pestaña de Deploy envía a la red con que se comunica estableciendo un am
 Una vez desplegado el contrato se puede revisar variable por variable la información asignada para esta transacción:
 
 [![9](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/9.png?raw=true "9")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/9.png?raw=true "9")
+
+## Estructuras de control
+
+- **If - Else** (Se utiliza cuando se cumple una condición u otra)
+
+```
+if(aplicarBloqueador){
+    meQuemo = false;
+} else {
+    meQuemo = true;
+}
+```
+
+- **While** (Permite ejecutar código cada vez que se cumpla una condición repetidamente)
+
+```
+uint veces =1;
+while(!aplicarBloqueador && veces <=12){
+    aplicarBloqueador = preguntar();
+    veces = veces +1;
+}
+```
+
+- **For** (Permite ejecutar código mientras se cumpla una condidicón, pero a diferencia del while es que debes definir como quieres que se cumpla esta condición )
+
+```
+for(uint i=0; i < 6; i++){
+    aplicarBloqueador = preguntar();
+}
+```
+## Funciones
+
+Las funciones son secciones de un programa que se encargar de ejecutar instrucciones de forma independiente. Estas pueden recibir parametros para usarlos dentro del código y pueden retornar una o más varibales. (Conocido como input y output)
+
+Tienen **visibilidad** al igual que las variables de estado, pueden ser:
+
+- **Public:** Totalmente accesible, sea cual sea el origen.
+- **Private:** Accesible únicamente a través de una función incluida en el mismo contrato.
+- **Internal:** Accesible únicamente a través de otra función incluida en el mismo contrato, o desde una función de un contrato que deriva del mismo. NO es accesible desde un mensaje de un contrato externo o una transacción externa.
+- **External:** Accesible desde una cuenta de propiedad externa y a través de un mensaje (llamada desde otro contrato). No es accesible desde una función del mismo contrato o uno derivado del mismo.
+
+Ejemplos de funciones publica y privada:
+
+```
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.7.0 <0.9.0;
+
+contract Number {
+    //Public function
+    function getNumber() public returns (int number){
+        number = 1948;
+    }
+    function changeNumber() public returns (int number){
+        number = getNumber() * -1;
+    }
+```
+[![10](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/10.png?raw=true "10")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/10.png?raw=true "10")
+
+```
+ //Private function
+    function getNumberPrivate() private returns (int number){
+        number = 1948;
+    }
+    function changeNumberPrivate() public returns (int number){
+        number = getNumber() * -1;
+    }
+```
+[![11](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/11.png?raw=true "11")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/11.png?raw=true "11")
+
+**Keywords**
+
+- **payable:** La usamos cuando necesitamos dentro de una función enviar ether alguna dirección de la blockchain.
+
+```
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.8.7 <0.9.0;
+
+contract payable {
+	//Payable function
+    function sendEther(address payable receiver) public payable{
+      receiver.transfer(msg.value);
+    }
+}
+
+```
+
+[![12](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/12.png?raw=true "12")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/12.png?raw=true "12")
+
+- **view:** La usamos para definir que una función no va modificar las variables de estado, sino que sólo las puede leer.
+
+```
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.8.7 <0.9.0;
+
+contract Asset {
+    string name = "Platzicoin";
+    function getName() public view returns (string memory){
+        return name;
+    }
+}
+```
+
+[![13](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/13.png?raw=true "13")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/13.png?raw=true "13")
+
+- **pure:** Se usa para definir que una función no lee ni modifica ninguna de las variables de estado y además no usa ninguna variable global.
+
+```
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.8.7 <0.9.0;
+
+contract Sum {
+    int number = 100;
+    function sum(int a, int b) public pure returns(int result){
+        result = a + b + number;
+    }
+}
+```
+
+[![14](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/14.png?raw=true "14")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/14.png?raw=true "14")
 
 # Desplegando nuestro smart contract
 
