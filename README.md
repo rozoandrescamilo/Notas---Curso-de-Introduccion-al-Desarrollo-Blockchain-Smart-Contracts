@@ -529,7 +529,7 @@ contract CrowdFunding {
     }
 }
 ```
-A nuestro código del proyecto de CrowdFunding se agregamos las lineas subrayadas en amarillo que corresponden a los modificadores y se compila:
+A nuestro código del proyecto de CrowdFunding le agregamos las lineas subrayadas en amarillo que corresponden a los modificadores y se compila:
 
 [![23](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/23.png?raw=true "22")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/23.png?raw=true "23")
 
@@ -547,14 +547,123 @@ Tambien probamos que desde otra cuenta diferente no se pueda cambiar el nombre d
 
 ## Eventos
 
-  - [Errores](#errores)
-  - [Struct types](#struct-types)
-  - [Enum types](#enum-types)
-  - [Arrays y mappings](#arrays-y-mappings)
-  - [Terminando nuestro contrato](#terminando-nuestro-contrato)
-- [Desplegando nuestro smart contract](#desplegando-nuestro-smart-contract)
-  - [Cómo desplegar nuestro contrato en Roptein](#cómo-desplegar-nuestro-contrato-en-roptein)
-  - [Cómo desplegar nuestro contrato en Truffle](#cómo-desplegar-nuestro-contrato-en-truffle)
+Permite conectar lo que pasa dentro de la Blockchain con el exterior porque a tráves de un protocolo otras aplicaciones se pueden suscribir a ellos y escuchar todo lo que está pasando en el Smart Contract.
 
+Se usan para:
+
+- Registrar cambios que se hicieron
+- Feedback (Retroalimentación)
+
+Ejemplo:
+
+```
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.7.0 <0.9.0;
+
+contract Asset {
+    string public tokenName = "CryptoPlatzi";
+	//event palabra clave, entre parentesis los cambios 
+    event ChangeName(address editor, string newName);
+
+    function changeName(string memory newName) public {
+        tokenName = newName;
+		//Despues de cambiar el nombre se emite el editor y el cambio de nombre
+        emit ChangeName(msg.sender, newName);
+    }
+}
+```
+
+[![27](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/27.png?raw=true "27")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/27.png?raw=true "27")
+
+#### Reto #3
+
+- Agrega eventos a las funciones de fundProject y changeProjectState.  
+- Piensa en qué información será relevante para los suscriptores del evento.
+
+A nuestro código del proyecto de CrowdFunding le agregamos las lineas que corresponden a los eventos, emiciones y se compila:
+
+```
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.7.0 <0.9.0;
+
+//Se crea contrato y se asignan variables de estado
+contract CrowdFunding {
+    string public id; //Referencia del proyecto
+    string public name; //Nombre actual del proyecto
+    string public description; 
+    address payable public author; //Autor o representante del proyecto
+    string public state = "Opened"; //Estado abierto para recibir fondos
+    uint256 public funds; //Para almacenar fondos
+    uint256 public fundraisingGoal; //Define cuanto se espera ganar con la ronda de fundraising
+
+    //Parametros de identificador de proyecto y el valor
+    event ProjectFunded(string projectId, uint256 value);
+
+    event ProjectStateChanged(string id, string state);
+    
+    //Para quien desplegue el contrato pueda asignar valor inicial a las variables
+    constructor(string memory _id, string memory _name, string memory _description, uint256 _fundraisingGoal) {
+        id = _id;
+        name = _name;
+        description = _description;
+        fundraisingGoal = _fundraisingGoal;
+        author = payable(msg.sender); //Para que pueda enviar ether a esta dirección 
+    }
+    
+    //Modificador que valida que la variable de estado de autor es igual a la dirección de quien llama la función
+    modifier isAuthor() {
+        require(author == msg.sender, "You need to be the project author");
+        _;
+    }
+
+    //Modificador que valida que la variable de estado de autor es diferente a la dirección de quien llama la función
+    modifier isNotAuthor() {
+        require(
+            author != msg.sender,
+            "As author you can not fund your own project"
+        );
+        _;
+    }
+
+    //Para que cualquiera la pueda ver y enviar Ether sin problema
+    function fundProject() public payable isNotAuthor{ //Autor no puede aportar a su propio proyecto
+        author.transfer(msg.value); //Para transferir el valor de ether dado por el usuario al autor (wei)
+        funds += msg.value; //Se agrega a los fondos el valor recibido
+        emit ProjectFunded(id, msg.value); //Cantidad en wei que recibió el proyecto
+    }
+
+    //Recibe un nuevo estado, se guarda variable newState para optimizar gas usado en la llamada
+    function changeProjectState(string calldata newState) public isAuthor{ //Solo autor es quien modifica
+        state = newState;
+        emit ProjectStateChanged(id, newState); //Identificador del proyecto y su estado
+    }
+}
+
+```
+
+Una vez compilado se despliega el contrato con el valor de FundrisinGoal de 1 Eth:
+
+[![28](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/28.png?raw=true "28")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/28.png?raw=true "28")
+
+Con otra cuenta secundaria se fondea con el valor de 1 gwei y se podrá ver reflejado el id del proyecto y el valor del fondo:
+
+[![29](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/29.png?raw=true "29")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/29.png?raw=true "29")
+
+Con la cuenta del owner se prueba cambiando el estado del proyecto a closed: 
+
+[![30](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/30.png?raw=true "30")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/30.png?raw=true "30")
+
+
+## Errores
+## Struct types
+## Enum types
+## Arrays y mappings]
+## Terminando nuestro contrato
 # Desplegando nuestro smart contract
+## Cómo desplegar nuestro contrato en Roptein
+## Cómo desplegar nuestro contrato en Truffle
+
+
 

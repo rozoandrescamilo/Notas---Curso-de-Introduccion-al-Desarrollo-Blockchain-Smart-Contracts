@@ -11,6 +11,11 @@ contract CrowdFunding {
     string public state = "Opened"; //Estado abierto para recibir fondos
     uint256 public funds; //Para almacenar fondos
     uint256 public fundraisingGoal; //Define cuanto se espera ganar con la ronda de fundraising
+
+    //Parametros de identificador de proyecto y el valor
+    event ProjectFunded(string projectId, uint256 value);
+
+    event ProjectStateChanged(string id, string state);
     
     //Para quien desplegue el contrato pueda asignar valor inicial a las variables
     constructor(string memory _id, string memory _name, string memory _description, uint256 _fundraisingGoal) {
@@ -40,10 +45,13 @@ contract CrowdFunding {
     function fundProject() public payable isNotAuthor{ //Autor no puede aportar a su propio proyecto
         author.transfer(msg.value); //Para transferir el valor de ether dado por el usuario al autor (wei)
         funds += msg.value; //Se agrega a los fondos el valor recibido
+        emit ProjectFunded(id, msg.value); //Cantidad en wei que recibió el proyecto
     }
 
     //Recibe un nuevo estado, se guarda variable newState para optimizar gas usado en la llamada
     function changeProjectState(string calldata newState) public isAuthor{ //Solo autor es quien modifica
         state = newState;
+        emit ProjectStateChanged(id, newState); //Identificador del proyecto y su estado
     }
 }
+
