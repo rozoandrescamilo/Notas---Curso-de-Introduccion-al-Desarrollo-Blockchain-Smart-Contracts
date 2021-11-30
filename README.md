@@ -693,6 +693,101 @@ Una vez escrito se compila y se intenta cambiar el estado a un número diferente
 
 [![32](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/32.png?raw=true "32")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/32.png?raw=true "32")
 
+#### Reto #4 
+
+- Crea una validación para que no se pueda aportar al proyecto si el estado es 'Closed'.  
+- Crea una validación para que no se pueda actualizar un estado, este debe ser diferente al actual.  
+- Crea una validación para que no se puedan hacer aportes con valor cero.
+
+Para comenzar es necesario cambiar el tipo de variable de "state" y "newState" desde string a uint256 para que puedan ser comparados de manera fácil, las lineas requeridas de require se posicionan al comienzo de cada una de las funciones de fundProject y ChangeProjectState:
+
+```
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.7.0 <0.9.0;
+
+//Se crea contrato y se asignan variables de estado
+contract CrowdFunding {
+    string public id; //Referencia del proyecto
+    string public name; //Nombre actual del proyecto
+    string public description; 
+    address payable public author; //Autor o representante del proyecto
+    uint256 public state; //Estado tipo uint para que sea fácil de comparar
+    uint256 public funds; //Para almacenar fondos
+    uint256 public fundraisingGoal; //Define cuanto se espera ganar con la ronda de fundraising
+
+    //Parametros de identificador de proyecto y el valor
+    event ProjectFunded(string projectId, uint256 value);
+
+    event ProjectStateChanged(string id, uint256 state);
+    
+    //Para quien desplegue el contrato pueda asignar valor inicial a las variables
+    constructor(string memory _id, string memory _name, string memory _description, uint256 _fundraisingGoal) {
+        id = _id;
+        name = _name;
+        description = _description;
+        fundraisingGoal = _fundraisingGoal;
+        author = payable(msg.sender); //Para que pueda enviar ether a esta dirección 
+    }
+    
+    //Modificador que valida que la variable de estado de autor es igual a la dirección de quien llama la función
+    modifier isAuthor() {
+        require(author == msg.sender, "You need to be the project author");
+        _;
+    }
+
+    //Modificador que valida que la variable de estado de autor es diferente a la dirección de quien llama la función
+    modifier isNotAuthor() {
+        require(
+            author != msg.sender,
+            "As author you can not fund your own project"
+        );
+        _;
+    }
+
+    //Para que cualquiera la pueda ver y enviar Ether sin problema
+    function fundProject() public payable isNotAuthor{ //Autor no puede aportar a su propio proyecto
+        require(state != 1, "The project can not receive funds"); //Si state = 0 no recibe más fondos
+        require(msg.value > 0, "Fund value must be greater than 0"); //Si el valor enviado por usuario es mayor a cero
+        author.transfer(msg.value); //Para transferir el valor de ether dado por el usuario al autor (wei)
+        funds += msg.value; //Se agrega a los fondos el valor recibido
+        emit ProjectFunded(id, msg.value); //Cantidad en wei que recibió el proyecto
+    }
+
+    //Recibe un nuevo estado, se guarda variable newState para optimizar gas usado en la llamada
+    function changeProjectState(uint256 newState) public isAuthor{ //Solo autor es quien modifica
+        require(state != newState, "New state must be different");//Si el estado actual es diferente del nuevo estado
+        state = newState;
+        emit ProjectStateChanged(id, newState); //Identificador del proyecto y su estado
+    }
+}
+```
+
+Una vez compilado se despliega el contrato con el valor de FundrisinGoal de 1 Eth:
+
+[![33](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/33.png?raw=true "33")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/33.png?raw=true "33")
+
+Para probarlo desde la cuenta del owner se cambia el estado del proyecto a 1 = closed:
+
+[![34](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/34.png?raw=true "34")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/34.png?raw=true "34")
+
+Con otra cuenta secundaria se fondea con el valor de 1 gwei y se podrá ver reflejado el mensaje de error "The project can not receive funds":
+
+[![35](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/35.png?raw=true "35")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/35.png?raw=true "35")
+
+Para probar la segunda condición, desde la cuenta del owner se cambia de nuevo el estado del proyecto a 0 = opened:
+
+[![36](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/36.png?raw=true "36")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/36.png?raw=true "36")
+
+En la cuenta secundaria se intenta fondear con un valor de 0 wei y se ve reflejado el error "Fund value must be greater than 0":
+
+[![37](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/37.png?raw=true "37")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/37.png?raw=true "37")
+
+Por último desde la cuenta owner se intenta cambiar el estado al mismo actual y muestra el siguiente mensaje de error "New state must be different":
+
+[![38](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/38.png?raw=true "38")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/38.png?raw=true "38")
+
+
 ## Struct types
 ## Enum types
 ## Arrays y mappings]
