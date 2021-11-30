@@ -40,7 +40,6 @@ contract CrowdFunding {
         require(project.author != msg.sender, "As author you can not fund your own project");
         _;
     }
-
     //Para que cualquiera la pueda ver y enviar Ether sin problema
     function fundProject() public payable isNotAuthor{ //Autor no puede aportar a su propio proyecto
         require(project.state != FundraisingState.Closed, "The project can not receive funds"); //Si state = 0 no recibe más fondos

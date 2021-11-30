@@ -957,9 +957,28 @@ Al compilar y desplegar el contrato, se solicita la información del proyecto co
 
 ## Arrays y mappings
 
+Los Arrays son una colección ordenada de datos de un solo tipo, mientras los mappings son Hashmaps, es decir, estructuras de clave valor. El correcto uso de estas estructuras de datos mejora el rendimiento de nuestro contrato, disminuyendo la carga de computo. 
+
+Ejemplo de arrays:
+
+[![43](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/43.png?raw=true "43")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/43.png?raw=true "43")
+
+Ejemplo de mapping:
+
+[![44](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/44.png?raw=true "44")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/44.png?raw=true "44")
+
+#### Reto #6
+
+- Permite almacenar más de un proyecto usando un Array.
+- Crea una función createProject donde puedas inicializar los datos del proyecto.  
+- Crea un Mapping que almacene las contribuciones que se le han hecho a un proyecto.
+
 
 
 ## Terminando nuestro contrato
+
+
+
 # Desplegando nuestro smart contract
 ## Cómo desplegar nuestro contrato en Roptein
 ## Cómo desplegar nuestro contrato en Truffle
