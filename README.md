@@ -655,8 +655,44 @@ Con la cuenta del owner se prueba cambiando el estado del proyecto a closed:
 
 [![30](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/30.png?raw=true "30")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/30.png?raw=true "30")
 
-
 ## Errores
+
+- Dan información específica sobre los fallos.
+- Revierte los cambios aplicados para dar conciencia a la ejecución (El valor del gas cobrado por la ejecución no se devuelve a quien llama el contrato).
+
+Ejemplo para definir y enviar errores con Remix:
+
+```
+// SPDX-License-Identifier: GPL-3.0
+ pragma solidity >=0.7.0 <0.9.0;
+ 
+ contract asset {
+    string public state = 'onSale';
+
+    //Error que define como parametro los valores relevantes 
+    error StateNotDefined(uint unit);
+
+    function changeState(uint newState) public {
+        //paramtro condicional y parametro mensaje de Error
+        require(newState == 0 || newState == 1, 'This state is not defined');
+        if(newState == 0){
+            state = 'onSale';
+        }else if(newState == 1){
+            state = 'notForSale';
+        } else {
+            //revert lanza el error 
+            revert StateNotDefined(newState);
+        }
+    }
+ }
+```
+
+Una vez escrito se compila y se intenta cambiar el estado a un número diferente "2", donde se lanza un mensaje error. 
+
+[![31](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/31.png?raw=true "31")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/31.png?raw=true "31")
+
+[![32](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/32.png?raw=true "32")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/32.png?raw=true "32")
+
 ## Struct types
 ## Enum types
 ## Arrays y mappings]
