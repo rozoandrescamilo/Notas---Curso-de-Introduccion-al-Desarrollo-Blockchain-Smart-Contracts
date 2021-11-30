@@ -805,10 +805,160 @@ struct <structure_name> {
 - Guarda toda la información del proyecto en un Struct.  
 - Actualiza las funciones para que usen el Struct.
 
+Se cambia como se tenian escritas la variables y se estructuran desde qu ese definen hasta en las funciones donde se usan:
 
+```
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.7.0 <0.9.0;
+
+//Se crea contrato y se asignan variables de estado
+contract CrowdFunding {
+        
+    struct Project { //Se define el struct
+        string id; //Referencia del proyecto
+        string name; //Nombre actual del proyecto
+        string description; 
+        address payable author; //Autor o representante del proyecto
+        uint state; //Estado tipo uint para que sea fácil de comparar
+        uint funds; //Para almacenar fondos
+        uint fundraisingGoal; //Define cuanto se espera ganar con la ronda de fundraising
+    }
+
+    Project public project; //Define la variable pública como project
+
+    //Parametros de identificador de proyecto y el valor
+    event ProjectFunded(string projectId, uint256 value);
+
+    event ProjectStateChanged(string id, uint256 state);
+    
+    //Para quien desplegue el contrato pueda asignar valor inicial a las variables
+    constructor(string memory _id, string memory _name, string memory _description, uint256 _fundraisingGoal) {
+        project = Project(_id, _name, _description, payable(msg.sender), 0, 0, _fundraisingGoal);
+    } // Se asigna el valor de la variable project con cada propiedad
+    
+    //Modificador que valida que la variable de estado de autor es igual a la dirección de quien llama la función
+    modifier isAuthor() {
+        require(project.author == msg.sender, "You need to be the project author");
+        _;
+    }
+
+    //Modificador que valida que la variable de estado de autor es diferente a la dirección de quien llama la función
+    modifier isNotAuthor() {
+        require(project.author != msg.sender, "As author you can not fund your own project");
+        _;
+    }
+
+    //Para que cualquiera la pueda ver y enviar Ether sin problema
+    function fundProject() public payable isNotAuthor{ //Autor no puede aportar a su propio proyecto
+        require(project.state != 1, "The project can not receive funds"); //Si state = 0 no recibe más fondos
+        require(msg.value > 0, "Fund value must be greater than 0"); //Si el valor enviado por usuario es mayor a cero
+        project.author.transfer(msg.value); //Para transferir el valor de ether dado por el usuario al autor (wei)
+        project.funds += msg.value; //Se agrega a los fondos el valor recibido
+        emit ProjectFunded(project.id, msg.value); //Cantidad en wei que recibió el proyecto
+    }
+
+    //Recibe un nuevo estado, se guarda variable newState para optimizar gas usado en la llamada
+    function changeProjectState(uint newState) public isAuthor{ //Solo autor es quien modifica
+        require(project.state != newState, "New state must be different");//Si el estado actual es diferente del nuevo estado
+        project.state = newState;
+        emit ProjectStateChanged(project.id, newState); //Identificador del proyecto y su estado
+    }
+}
+
+```
+
+[![40](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/40.png?raw=true "40")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/40.png?raw=true "40")
 
 ## Enum types
-## Arrays y mappings]
+
+Las enumeraciones son la forma de crear tipos de datos definidos por el usuario, generalmente se usa para proporcionar nombres para constantes integrales, lo que hace que el contrato sea mejor para el mantenimiento y la lectura. Las enumeraciones restringen la variable con uno de los pocos valores predefinidos, estos valores de la lista enumerada se denominan enumeraciones. Las opciones de se representan con valores enteros comenzando desde cero, también se puede dar un valor predeterminado para la enumeración. Mediante el uso de enumeraciones es posible reducir los errores en el código.
+
+```
+enum <enumerator_name> { 
+    element 1, elemenent 2,....,element n
+}
+
+```
+
+[![41](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/41.png?raw=true "41")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/41.png?raw=true "41")
+
+#### Reto #6
+
+- Añade los estados de un proyecto a un Enum para evitar que se creen nuevos estados.
+
+Se definen los posibles estados del proyecto Opened y Closed con valores de 0 y 1 respectivamente, ahora todas las variables de state se cambian por FundraisingState en el evento y las funciones:
+
+```
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.7.0 <0.9.0;
+
+//Se crea contrato y se asignan variables de estado
+contract CrowdFunding {
+
+    enum FundraisingState { Opened, Closed } //Se definen los posibles estados del proyecto
+        
+    struct Project { //Se define el struct
+        string id; //Referencia del proyecto
+        string name; //Nombre actual del proyecto
+        string description; 
+        address payable author; //Autor o representante del proyecto
+        FundraisingState state;
+        uint funds; //Para almacenar fondos
+        uint fundraisingGoal; //Define cuanto se espera ganar con la ronda de fundraising
+    }
+
+    Project public project; //Define la variable pública como project
+
+    //Parametros de identificador de proyecto y el valor
+    event ProjectFunded(string projectId, uint256 value);
+
+    event ProjectStateChanged(string id, FundraisingState state);
+    
+    //Para quien desplegue el contrato pueda asignar valor inicial a las variables
+    constructor(string memory _id, string memory _name, string memory _description, uint256 _fundraisingGoal) {
+        project = Project(_id, _name, _description, payable(msg.sender), FundraisingState.Opened, 0, _fundraisingGoal);
+    } // Se asigna el valor de la variable project con cada propiedad
+    
+    //Modificador que valida que la variable de estado de autor es igual a la dirección de quien llama la función
+    modifier isAuthor() {
+        require(project.author == msg.sender, "You need to be the project author");
+        _;
+    }
+
+    //Modificador que valida que la variable de estado de autor es diferente a la dirección de quien llama la función
+    modifier isNotAuthor() {
+        require(project.author != msg.sender, "As author you can not fund your own project");
+        _;
+    }
+
+    //Para que cualquiera la pueda ver y enviar Ether sin problema
+    function fundProject() public payable isNotAuthor{ //Autor no puede aportar a su propio proyecto
+        require(project.state != FundraisingState.Closed, "The project can not receive funds"); //Si state = 0 no recibe más fondos
+        require(msg.value > 0, "Fund value must be greater than 0"); //Si el valor enviado por usuario es mayor a cero
+        project.author.transfer(msg.value); //Para transferir el valor de ether dado por el usuario al autor (wei)
+        project.funds += msg.value; //Se agrega a los fondos el valor recibido
+        emit ProjectFunded(project.id, msg.value); //Cantidad en wei que recibió el proyecto
+    }
+
+    //Recibe un nuevo estado, se guarda variable newState para optimizar gas usado en la llamada
+    function changeProjectState(FundraisingState newState) public isAuthor{ //Solo autor es quien modifica
+        require(project.state != newState, "New state must be different");//Si el estado actual es diferente del nuevo estado
+        project.state = newState;
+        emit ProjectStateChanged(project.id, newState); //Identificador del proyecto y su estado
+    }
+}
+
+```
+Al compilar y desplegar el contrato, se solicita la información del proyecto con sus respectivos estados:
+
+[![42](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/42.png?raw=true "42")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/42.png?raw=true "42")
+
+## Arrays y mappings
+
+
+
 ## Terminando nuestro contrato
 # Desplegando nuestro smart contract
 ## Cómo desplegar nuestro contrato en Roptein
