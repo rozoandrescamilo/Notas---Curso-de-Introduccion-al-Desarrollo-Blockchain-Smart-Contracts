@@ -787,8 +787,26 @@ Por último desde la cuenta owner se intenta cambiar el estado al mismo actual y
 
 [![38](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/38.png?raw=true "38")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/38.png?raw=true "38")
 
-
 ## Struct types
+
+Solidity permite al usuario crear su propio tipo de datos en forma de estructura. La estructura contiene un grupo de elementos con un tipo de datos diferente. Generalmente, se usa para representar un registro. Para definir una estructura se utiliza la palabra clave **struct,** que crea un nuevo tipo de datos.
+
+```
+struct <structure_name> {  
+   <data type> variable_1;  
+   <data type> variable_2; 
+}
+```
+
+[![39](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/39.png?raw=true "39")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/39.png?raw=true "39")
+
+#### Reto #5
+
+- Guarda toda la información del proyecto en un Struct.  
+- Actualiza las funciones para que usen el Struct.
+
+
+
 ## Enum types
 ## Arrays y mappings]
 ## Terminando nuestro contrato
