@@ -1077,9 +1077,35 @@ Al verificar en **contributions** con el Id del proyecto y el indice (En este ca
 [![49](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/49.png?raw=true "49")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/49.png?raw=true "49")
 
 
-
 # Desplegando nuestro smart contract
-## Cómo desplegar nuestro contrato en Roptein
+
+## Cómo desplegar nuestro contrato en Ropsten
+
+
+Ropsten es una testnet una red de prueba de Ethereum donde se pueden probar transacciones tal como se harían en la red principal. El dinero que usa no tiene ningun valor.
+
+Para fondear nuestra wallet en la red de prueba se requiere un Faucet, las Faucets son aplicaciones que pueden enviar eth a esta testnet.
+
+[![50](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/50.png?raw=true "50")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/50.png?raw=true "50")
+
+[![51](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/51.png?raw=true "51")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/51.png?raw=true "51")
+
+Una vez la cuenta en Ropsten este con fondos se compila y se intenta desplegar seleccionando el Environment "Injected Web3", que reconoce automaticamente la wallet de Metamask con lo fondeado:
+
+[![52](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/52.png?raw=true "52")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/52.png?raw=true "52")
+
+Se mostrará una ventana de Metamask para confirmar la transacción con la información de Gas/Fee que se cobrará por desplegar el contrato:
+
+[![53](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/53.png?raw=true "53")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/53.png?raw=true "53")
+
+Creado el contrato de CrowdFunding en la pestaña de Activity se podra ver detalles de la transacción y si se desea se puede visuailizar en el EtherScan toda la información con la nueva dirección del contrato con la cual otros podran aportar:
+
+[![54](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/54.png?raw=true "54")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/54.png?raw=true "54")
+
+[![55](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/55.png?raw=true "55")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/55.png?raw=true "55")
+
+
+
 ## Cómo desplegar nuestro contrato en Truffle
 
 
