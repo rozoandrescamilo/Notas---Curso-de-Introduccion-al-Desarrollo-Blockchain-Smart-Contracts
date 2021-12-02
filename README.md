@@ -24,7 +24,7 @@ Profesor Felipe Pardo @anfepar
   - [Arrays y mappings](#arrays-y-mappings)
   - [Terminando nuestro contrato](#terminando-nuestro-contrato)
 - [Desplegando nuestro smart contract](#desplegando-nuestro-smart-contract)
-  - [Cómo desplegar nuestro contrato en Ropstein](#cómo-desplegar-nuestro-contrato-en-ropstein)
+  - [Cómo desplegar nuestro contrato en Ropsten](#cómo-desplegar-nuestro-contrato-en-ropsten)
   - [Cómo desplegar nuestro contrato en Truffle](#cómo-desplegar-nuestro-contrato-en-truffle)
 
 # ¿Qué son los Smart Contracts?
