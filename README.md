@@ -1,6 +1,6 @@
 # Notas del Curso de Introducción al Desarrollo Blockchain: **Smart Contracts.**
 
-Profesor Felipe Pardo
+Profesor Felipe Pardo @anfepar
 
 ![](https://static.platzi.com/media/avatars/Platzi-f730e65b-e92b-44d3-81c0-5c59c4dc4658.png) ![](https://static.platzi.com/media/learningpath/badges/29fa8885-7536-44ba-8aea-7b32c8e39cc8.jpg) ![](https://static.platzi.com/media/achievements/piezas-introduccion-desarrollo-blockchain-contratos-inteligentes_badge-3fccc149-b0a.png)
 
@@ -1104,9 +1104,149 @@ Creado el contrato de CrowdFunding en la pestaña de Activity se podra ver detal
 
 [![55](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/55.png?raw=true "55")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/55.png?raw=true "55")
 
-
-
 ## Cómo desplegar nuestro contrato en Truffle
 
+Truffle es un ambiente para quienes desarrollan en blockchain, diseñado para testear y desplegar contratos de forma sencilla. En esta clase te explicaré como usar Truffle para desplegar nuestro contrato en Ropsten una de las testnet de Ethereum.
 
+En los apuntes de la clase de Prework para desarrollo de Aplicaciones Blockchain se realizó la instalación de npm y truffle, para más detalles: https://github.com/hackmilo/Notas---Prework-para-Desarrollo-de-Aplicaciones-Blockchain#truffle-suite 
+#### Creando un proyecto en Truffle
 
+Ahora que hemos instalado Truffle vamos a crear un proyecto para desplegar nuestro contrato **CrowdFunding.sol**, para esto vas a crear una carpeta CrowdFunding y dentro de ella vas a ejecutar el siguiente comando: `truffle init`
+
+[![56](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/56.png?raw=true "56")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/56.png?raw=true "56")
+
+Este comando inicializará tu proyecto con la siguiente estructura:
+
+- **contracts:** En esta carpeta debes agregar todos los contratos de tu proyecto, en este caso vamos a agregar nuestro contrato CrowdFunding.sol
+
+- **migrations:** Esta carpeta se agregarán los scripts necesarios para desplegar nuestro contrato, vamos a agregar un nuevo archivo 2_initial_migration.js con el siguiente contenido:
+
+```
+//2_initial_migration.js
+const CrowdFunding = artifacts.require("CrowdFunding"); //Instancia de nuestro contrato CrowdFunding.sol
+
+module.exports = function (deployer) {
+  deployer.deploy(CrowdFunding); //Este script hace deploy de nuestro contrato a la blockchain
+};
+
+```
+
+- **test:** En esta carpeta se agregan todos los archivos de test que nos permiten testear si nuestras aplicaciones y contratos funcionan como deberían.
+
+- **truffle-config.js:** Este es el archivo principal de configuración Truffle, nos permitirá modificar las configuraciones de Truffle.
+
+[![57](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/57.png?raw=true "57")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/57.png?raw=true "57")
+
+Como nuestro contrato tiene el pragma pragma solidity >=0.7.0 <0.9.0; debemos cambiar la versión del compilador de Solidity que usa Truffle, para permitir que pueda compilar nuestro contrato.
+
+Buscamos dentro de este archivo la sección de compilers y agregamos la versión de compilador 0.8.7.
+
+Nuestro archivo ahora se vería de la siguiente forma:
+
+[![58](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/58.png?raw=true "58")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/58.png?raw=true "58")
+
+#### Compilando nuestro contrato en Truffle
+
+Ahora que hemos creado y configurado nuestro proyecto, vamos a compilar nuestro contrato, para verificar que todo esté bien, para esto vamos a usar el comando: `truffle compile`
+
+[![59](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/59.png?raw=true "59")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/59.png?raw=true "59")
+
+Ahora que nuestro contrato ha sido compilado sin errores, llego la hora de desplegarlo en Ropsten.
+
+#### Desplegando nuestro contrato en Ropsten
+
+Configuraciones Iniciales:
+
+Para desplegar un contrato debemos contar con:
+
+- Un archivo .sol que al compilarlo no tenga ningún error.
+- Una wallet (Metamask) dentro de la red de Ropsten.
+- Un nodo que esté conectado con la red de Ropsten.
+
+Para conectaros a un nodo dentro de la red de Ropsten, vamos a usar [Infura.](https://infura.io/ "Infura")
+
+Infura nos proveerá un nodo público al que podremos conectarnos por medio de una API de forma muy sencilla.
+Para crear una cuenta en Infura solo debemos ingresar un email y una contraseña en la caja de Get Started for Free. Infura tiene varios planes con diferentes precios, el plan gratuito será más que suficiente para desplegar nuestro contrato.
+
+[![60](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/60.jpg?raw=true "60")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/60.jpg?raw=true "60")
+
+Una vez dentro de Infura, vamos a dar clic a la pestaña de Ethereum → Create A Project, le ponemos un nombre a nuestro proyecto, en este caso Crowd Funding.
+
+Una vez creado el proyecto, vemos que tiene un project id, un project secret, y varios endpoints, para cambiarnos de la mainnet de ethereum a la red de Ropsten.
+
+Vamos a dar clic en el selector de red y vamos a seleccionar Ropsten.
+
+> En Infura se cambian de Mainnet a Ropsten y se da clic en save changes arriba.
+
+[![61](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/61.jpg?raw=true "61")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/61.jpg?raw=true "61")
+
+#### Configurando la red en Truffle
+
+Ahora que contamos con todo lo que necesitamos para desplegar un contrato, vamos a configurarlo dentro de Truffle.
+
+Para esto instalaremos dos dependencias, la primera será truffle hdwallet provider, que permite hacer transacciones a la blockchain usando nuestra wallet, para instalarlo utiliza el siguiente comando:
+
+`npm install truffle-hdwallet-provider --save`
+
+La segunda dependencia que necesitaremos es dotenv. Esta te permite guardar variables con datos sensibles en archivo llamado **.env** y leerlas dentro del código sin que se revele su valor. Para instalarlo usaremos el comando:
+
+`npm install dotenv --save`
+
+Una vez instaladas las dependencias, debemos configurar los datos de la red de Ethereum donde queremos desplegar nuestro contrato, para esto vamos a agregar la siguiente configuración en la entrada networks del archivo **truffle-config.js**
+
+```
+//truffle-config.js
+...
+const HDWalletProvider = require('@truffle/hdwallet-provider');
+const { env } = require('process');
+require('dotenv').config()
+...
+networks: {
+    development: {
+      host: "127.0.0.1",     // Localhost (default: none)
+      port: 8545,            // Standard Ethereum port (default: none)
+      network_id: "*",       // Any network (default: none)
+    },
+
+    ropsten: {
+      provider: () => new HDWalletProvider(env.MNEMONIC, `https://ropsten.infura.io/v3/${env.PROJECT_ID}`),
+      network_id: 3,       // Ropsten's id
+      gas: 5500000,        // Ropsten has a lower block limit than mainnet
+      confirmations: 2,    // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true
+}
+...
+```
+
+[![62](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/62.png?raw=true "62")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/62.png?raw=true "62")
+
+Ahora creamos un archivo .env y agregamos las variables **MNEMONIC**, que tendrá la frase secreta que Metamask nos da como opción de recuperación de nuestra wallet y **PROJECT_ID** que es el valor que nos da Infura cuando creamos un proyecto:
+
+```
+MNEMONIC=example example example ...
+PROJECT_ID=infura project id
+```
+
+Recuerda que si quieres subir tu proyecto a GitHub primero debes agregar un archivo llamado .gitignore en la raíz del proyecto, con las siguientes entradas, para evitar que hagas públicos los datos de tu archivo .env .
+
+```
+//.gitignore
+.env
+build/
+```
+
+[![63](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/63.png?raw=true "63")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/63.png?raw=true "63")
+
+Una vez configurada la red de Ropsten dentro de Truffle vamos ahora si a desplegar nuestro contrato, para eso ejecutamos el siguiente comando en la terminal:
+
+`truffle migrate --network ropsten`
+
+> Si les da el error `Cannot find module '@truffle/hdwallet-provider'`
+> Se debe correr el comando `npm i @truffle/hdwallet-provider --save` Ya que en el import que se hace en truffle-config.js, ese es el paquete que se llama. Con esto se podrá volver a intentar desplegar el contrato.
+
+¡Y, listo! Tu contrato será desplegado. Para confirmarlo podrás ir a https://ropsten.etherscan.io/, en el buscador poner la dirección de tu wallet y en el resumen de las transacciones verás una de la siguiente forma:
+
+[![64](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/64.png?raw=true "64")](https://github.com/hackmilo/Notas---Curso-de-Introduccion-al-Desarrollo-Blockchain-Smart-Contracts/blob/main/img/64.png?raw=true "64")
+
+Cuando das clic sobre Contract Creation, verás que te lleva a una dirección, esta es la dirección del contrato dentro de Ropsten, ahora cualquiera dentro de la red puede encontrarlo y usarlo.
